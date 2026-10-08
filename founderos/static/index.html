@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FounderOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme=dark]{
+  --bg:#0d0b09; --surface:#161310; --surface2:#1d1915; --line:#2a251f; --ink:#f5efe8; --muted:#a3968a; --faint:#6f645a;
+  --accent:#f2a154; --accent2:#e07a2b; --accent-soft:rgba(242,161,84,.12);
+  --good:#5fd08a; --bad:#f2716a; --warn:#f2c14e;
+}
+[data-theme=light]{
+  --bg:#f8f4ee; --surface:#ffffff; --surface2:#f3ede4; --line:#e6ddd0; --ink:#241a12; --muted:#7a6a5b; --faint:#a89886;
+  --accent:#c4661a; --accent2:#a34f0d; --accent-soft:rgba(196,102,26,.1);
+  --good:#178048; --bad:#d63b32; --warn:#b7791f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.num,h1,h2,h3{font-family:Sora,Inter,sans-serif;letter-spacing:-.025em}
+h1,h2,h3{margin:0;font-weight:600}
+button{font-family:inherit}
+
+/* top bar */
+.nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1120px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;font:700 17px Sora;white-space:nowrap}
+.brand i{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center}
+.brand i svg{width:15px;height:15px;stroke:#1a0e04;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:none;color:var(--muted);padding:8px 14px;border-radius:9px;font:500 14px Inter;cursor:pointer;white-space:nowrap;transition:.15s}
+.tabs button:hover{color:var(--ink)}.tabs button.on{color:var(--ink);background:var(--surface2)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:14px}
+.health{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
+.health i{width:8px;height:8px;border-radius:50%}
+.iconbtn{border:1px solid var(--line);background:none;color:var(--muted);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px}
+
+/* layout */
+main{max-width:1120px;margin:0 auto;padding:40px 28px 100px}
+.page{display:none}.page.on{display:block;animation:fade .4s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.page.on{animation:none}}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sub{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px}
+h2.sec{font-size:20px;margin:56px 0 18px}
+h2.sec small{font:400 14px Inter;color:var(--muted);margin-left:10px;letter-spacing:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* overview: headline */
+.headline{font:600 clamp(24px,3.3vw,34px)/1.3 Sora;letter-spacing:-.03em;max-width:820px;margin:0 0 6px}
+.headline em{font-style:normal;color:var(--accent)}
+.headline .g{color:var(--good);font-style:normal}
+
+/* hero */
+.hero{display:grid;grid-template-columns:5fr 7fr;gap:40px;align-items:center;margin-top:32px;padding:40px}
+.mega{font:700 clamp(54px,7vw,84px)/1 Sora;letter-spacing:-.05em;margin:12px 0 10px;color:var(--ink)}
+.mega span{background:linear-gradient(120deg,#ffd29b,var(--accent) 60%,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.trio{display:grid;grid-template-columns:repeat(3,auto);gap:0 32px;margin-top:32px;justify-content:start}
+.trio b{display:block;font:600 22px Sora;letter-spacing:-.03em}.trio div>span{font-size:13px;color:var(--muted)}
+.up{color:var(--good)}.down{color:var(--bad)}
+
+/* snapshot strip */
+.strip{display:grid;grid-template-columns:repeat(5,1fr);margin-top:20px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.strip div{padding:22px 24px;border-right:1px solid var(--line)}.strip div:last-child{border:0}
+.strip b{display:block;font:600 24px Sora;letter-spacing:-.03em}.strip span{font-size:13px;color:var(--muted)}
+
+/* attention */
+.alert{display:flex;gap:16px;align-items:flex-start;padding:20px 0;border-top:1px solid var(--line)}.alert:first-child{border:0;padding-top:0}.alert:last-child{padding-bottom:0}
+.alert .d{width:10px;height:10px;border-radius:50%;margin-top:8px;flex:none}
+.alert b{font-weight:600;font-size:16px;display:block}.alert p{margin:4px 0 0;color:var(--muted)}
+.alert .fix{display:inline-block;margin-top:10px;background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:8px 12px;font-size:14px}
+.ok{display:flex;gap:12px;align-items:center;color:var(--good);font-weight:500}
+
+/* money split */
+.big100{font:700 52px Sora;letter-spacing:-.04em;line-height:1}
+.stack{display:flex;height:14px;border-radius:9px;overflow:hidden;gap:3px;margin:22px 0 20px}.stack i{display:block;transition:flex 1s cubic-bezier(.2,.8,.2,1)}
+.line{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}.line:first-of-type{border:0}
+.line .sw{width:10px;height:10px;border-radius:3px}.line b{margin-left:auto;font-weight:600}
+.prod{padding:12px 0;border-top:1px solid var(--line)}.prod:first-of-type{border:0;padding-top:4px}
+.prod .r{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px}.prod .r span{color:var(--muted);font-size:14px}
+.bar{height:6px;background:var(--surface2);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:9px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+
+/* segmented control */
+.seg{display:inline-flex;background:var(--surface2);border-radius:11px;padding:3px}
+.seg button{border:0;background:none;color:var(--muted);padding:6px 14px;border-radius:9px;font:500 13px Inter;cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+/* tables */
+table{border-collapse:collapse;width:100%}
+th{font-weight:500;color:var(--muted);text-align:left;font-size:13px;padding:0 12px 12px}td{padding:14px 12px;border-top:1px solid var(--line)}
+td.r,th.r{text-align:right}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:600}
+.pill.good{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}.pill.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}.pill.neutral{background:var(--surface2);color:var(--muted)}
+.heat td{text-align:center;font-variant-numeric:tabular-nums;font-size:13px;border:3px solid var(--surface);border-radius:10px;background-clip:padding-box}.heat td:first-child,.heat td:nth-child(2){text-align:left;border-radius:0}
+
+/* insights */
+.summary{font:500 20px/1.6 Inter;padding:36px;background:linear-gradient(135deg,var(--accent-soft),transparent 60%),var(--surface)}
+.issue{display:flex;gap:16px;padding:24px 0;border-top:1px solid var(--line)}.issue:first-child{border:0;padding-top:0}
+.issue .d{width:10px;height:10px;border-radius:50%;margin-top:8px;flex:none}
+.issue b{font-size:16px;font-weight:600;display:block}.issue p{margin:4px 0 0;color:var(--muted)}
+.fix{display:block;margin-top:12px;background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:14px}.fix b{display:inline;color:var(--accent);font-size:14px}
+.ask{display:flex;gap:10px}.ask input{flex:1;padding:14px 16px;border-radius:13px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:15px Inter;outline:none}
+.ask input:focus{border-color:var(--accent)}
+.btn{border:0;background:var(--accent);color:#1a0e04;border-radius:12px;padding:12px 20px;font:600 14px Inter;cursor:pointer}.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.sugg{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.sugg button{border:1px solid var(--line);background:none;color:var(--muted);padding:7px 13px;border-radius:99px;font:13px Inter;cursor:pointer}.sugg button:hover{color:var(--ink);border-color:var(--accent)}
+.answer{margin-top:12px;padding:18px;background:var(--surface2);border-radius:14px;white-space:pre-wrap}
+details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:6px 0}details[open] summary{margin-bottom:12px}
+
+/* automation */
+.wf{display:grid;grid-template-columns:36px 1fr auto;gap:16px;align-items:center;padding:20px 0;border-top:1px solid var(--line)}.wf:first-child{border:0;padding-top:0}
+.wf .n{width:36px;height:36px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;font:600 14px Sora;color:var(--muted)}
+.wf .n.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}
+.wf b{font-weight:600}.wf p{margin:2px 0 0;color:var(--muted);font-size:14px}.wf small{color:var(--faint)}
+
+#tip{position:fixed;pointer-events:none;background:#fff;color:#1a0e04;padding:6px 11px;border-radius:9px;font:600 13px Inter;display:none;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+a{color:var(--accent)}.empty{padding:80px 20px;text-align:center;color:var(--muted)}
+
+@media(max-width:1000px){
+  .hero{grid-template-columns:1fr;padding:28px;gap:24px}.two{grid-template-columns:1fr}.strip{grid-template-columns:repeat(2,1fr)}
+  .strip div{border-bottom:1px solid var(--line)}.health span{display:none}.nav-in{gap:14px;padding:0 16px}main{padding:28px 16px 80px}
+  .brand b{display:none}.trio{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="nav-in">
+  <div class="brand"><i><svg viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/></svg></i><b>FounderOS</b></div>
+  <nav class="tabs" id="tabs">
+    <button class="on" data-p="ov">Overview</button><button data-p="ai">Insights</button><button data-p="mt">Metrics</button><button data-p="cs">Customers &amp; stock</button><button data-p="wf">Automation</button>
+  </nav>
+  <div class="nav-r"><div class="health"><i id="hdot"></i><span id="htxt"></span></div><button class="iconbtn" id="theme" title="Toggle theme">◐</button></div>
+</div></header>
+
+<main>
+<!-- ================= OVERVIEW ================= -->
+<section class="page on" id="p-ov">
+  <div class="eyebrow" id="brandline"></div>
+  <h1 class="headline" id="headline" style="margin-top:10px"></h1>
+
+  <div class="card hero">
+    <div>
+      <div class="eyebrow">Total revenue to date</div>
+      <div class="mega"><span id="mega">₹0</span></div>
+      <div class="sub" id="megasub"></div>
+      <div class="trio" id="trio"></div>
+    </div>
+    <div id="cumchart"></div>
+  </div>
+
+  <div class="strip" id="strip"></div>
+
+  <h2 class="sec">Needs your attention <small id="attn-sub"></small></h2>
+  <div class="card" id="attn"></div>
+
+  <h2 class="sec">Last 30 days</h2>
+  <div class="two">
+    <div class="card"><div class="eyebrow">Where each ₹100 goes</div>
+      <div style="margin-top:16px"><span class="big100" id="p100"></span> <span class="sub">stays as profit</span></div>
+      <div class="stack" id="stack"></div><div id="leg"></div></div>
+    <div class="card"><div class="eyebrow">Best sellers</div><div style="margin-top:16px" id="prods"></div></div>
+  </div>
+
+  <div class="row" style="margin:56px 0 18px"><h2 style="font-size:20px">Daily trend</h2>
+    <div class="seg" id="ctabs"></div></div>
+  <div class="card"><div class="row" style="margin-bottom:8px"><div class="num" id="cbig" style="font-size:24px;font-weight:600"></div><span class="sub">last 30 days</span></div><div id="chart"></div></div>
+</section>
+
+<!-- ================= INSIGHTS ================= -->
+<section class="page" id="p-ai">
+  <div class="eyebrow" id="aidate"></div>
+  <h1 class="headline" style="margin:10px 0 26px">What happened, and what to do</h1>
+  <div class="card summary" id="summary"></div>
+  <div class="row" style="margin:20px 0 0"><span class="sub" id="origin"></span></div>
+
+  <h2 class="sec">Issues &amp; opportunities</h2>
+  <div class="card" id="insights"></div>
+
+  <h2 class="sec">Ask FounderOS</h2>
+  <div class="card"><div class="ask"><input id="q" placeholder="e.g. Why did today's margins shrink?"><button class="btn" id="askbtn">Ask</button></div>
+    <div class="sugg" id="sugg"></div><div class="answer" id="answer" hidden></div></div>
+
+  <h2 class="sec" style="margin-top:40px"><details style="font-size:15px"><summary>Show statistical detail</summary><div class="card" style="padding:16px"><table id="anoms"></table></div></details></h2>
+</section>
+
+<!-- ================= METRICS ================= -->
+<section class="page" id="p-mt">
+  <div class="eyebrow" id="mtdate"></div>
+  <h1 class="headline" style="margin:10px 0 26px">All 40 metrics</h1>
+  <div class="seg" id="gtabs" style="margin-bottom:22px;flex-wrap:wrap"></div>
+  <div class="card" style="padding:20px 16px"><table id="mtable"></table></div>
+</section>
+
+<!-- ================= CUSTOMERS & STOCK ================= -->
+<section class="page" id="p-cs">
+  <div class="eyebrow">Customers &amp; stock</div>
+  <h1 class="headline" style="margin:10px 0 0" id="csline"></h1>
+  <h2 class="sec">Do customers come back? <small>% of each month's new customers who ordered again</small></h2>
+  <div class="card" style="overflow:auto;padding:20px"><table class="heat" id="cohorts"></table></div>
+  <h2 class="sec">Inventory</h2>
+  <div class="card" style="padding:20px 16px"><table id="inv"></table></div>
+</section>
+
+<!-- ================= AUTOMATION ================= -->
+<section class="page" id="p-wf">
+  <div class="row" style="align-items:flex-end;flex-wrap:wrap"><div><div class="eyebrow" id="wfmeta"></div><h1 class="headline" style="margin:10px 0 0">Runs on autopilot</h1></div><button class="btn" id="runall">Run everything now</button></div>
+  <div class="card" style="margin-top:32px" id="wfs"></div>
+  <h2 class="sec">Daily reports <small>PDF sent to Slack</small></h2>
+  <div class="card" style="padding:20px 16px"><table id="reports"></table></div>
+</section>
+</main>
+<div id="tip"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const inr=v=>(v<0?'-':'')+'₹'+Math.round(Math.abs(v)).toLocaleString('en-IN');
+const inrC=v=>{const a=Math.abs(v),s=v<0?'-':'';return a>=1e7?s+'₹'+(a/1e7).toFixed(2)+' Cr':a>=1e5?s+'₹'+(a/1e5).toFixed(1)+' L':a>=1e3?s+'₹'+(a/1e3).toFixed(1)+'k':s+'₹'+Math.round(a)};
+function fmt(u,v){if(v==null||isNaN(v))return '–';return u==='inr'?inr(v):u==='inrC'?inrC(v):u==='pct'?v.toFixed(1)+'%':u==='x'?v.toFixed(2)+'×':u==='days'?v.toFixed(1)+' days':Math.round(v).toLocaleString('en-IN')}
+async function api(p,o){const r=await fetch(p,o);if(!r.ok){const e=new Error(r.status);e.status=r.status;throw e}return r.json()}
+const dstr=s=>new Date(s+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+const dlong=s=>new Date(s+'T00:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const sevColor={critical:'var(--bad)',warning:'var(--warn)',info:'var(--faint)',good:'var(--good)'};
+
+function countUp(el,to,u){const t0=performance.now(),d=1200;if(reduced){el.textContent=fmt(u,to);return}
+  (function f(t){const p=Math.min(1,(t-t0)/d),e=1-Math.pow(1-p,4);el.textContent=fmt(u,to*e);if(p<1)requestAnimationFrame(f)})(t0)}
+
+/* ---------- chart ---------- */
+function areaChart(el,data,unit,o={}){
+  const W=o.w||800,H=o.h||280,P={l:52,r:8,t:10,b:28};if(!data.length){el.innerHTML='';return}
+  const gid='g'+Math.random().toString(36).slice(2,7),vs=data.map(d=>d.value);let mn=Math.min(0,...vs),mx=Math.max(...vs);if(mx===mn)mx=mn+1;
+  const x=i=>P.l+i/(data.length-1||1)*(W-P.l-P.r),y=v=>P.t+(1-(v-mn)/(mx-mn))*(H-P.t-P.b);
+  const yl=v=>unit==='inr'?(Math.abs(v)>=1e5?(v/1e5).toFixed(1)+'L':Math.abs(v)>=1e3?Math.round(v/1e3)+'k':Math.round(v)):unit==='pct'?Math.round(v)+'%':unit==='x'?v.toFixed(1):Math.round(v);
+  let g='';for(let i=0;i<=3;i++){const v=mn+(mx-mn)*i/3,yy=y(v);g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="${P.l-10}" y="${yy+4}" text-anchor="end" font-size="12" fill="var(--faint)">${yl(v)}</text>`}
+  const line=data.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(d.value).toFixed(1)}`).join(''),base=y(Math.max(mn,0));
+  let lbl='';[0,Math.floor(data.length/2),data.length-1].forEach(i=>{lbl+=`<text x="${x(i)}" y="${H-6}" text-anchor="${i===0?'start':i===data.length-1?'end':'middle'}" font-size="12" fill="var(--faint)">${dstr(data[i].date)}</text>`});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".32"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>${g}${lbl}
+   <path d="${line}L${x(data.length-1)},${base}L${x(0)},${base}Z" fill="url(#${gid})"/>
+   <path id="${gid}p" d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+   <line class="hv" y1="${P.t}" y2="${H-P.b}" stroke="var(--faint)" stroke-dasharray="3 4" opacity="0"/><circle class="hd" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="3" opacity="0"/>
+   <rect class="ov" x="${P.l}" y="0" width="${W-P.l-P.r}" height="${H}" fill="transparent"/></svg>`;
+  const svg=el.querySelector('svg'),tip=$('#tip'),path=svg.querySelector('#'+gid+'p');
+  if(!reduced){const L=path.getTotalLength();path.style.strokeDasharray=L;path.style.strokeDashoffset=L;path.getBoundingClientRect();path.style.transition='stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)';path.style.strokeDashoffset=0}
+  const ov=svg.querySelector('.ov');
+  ov.onmousemove=e=>{const b=svg.getBoundingClientRect(),px=(e.clientX-b.left)/b.width*W,i=Math.max(0,Math.min(data.length-1,Math.round((px-P.l)/(W-P.l-P.r)*(data.length-1))));
+    const hv=svg.querySelector('.hv'),hd=svg.querySelector('.hd');hv.setAttribute('x1',x(i));hv.setAttribute('x2',x(i));hv.setAttribute('opacity',1);hd.setAttribute('cx',x(i));hd.setAttribute('cy',y(data[i].value));hd.setAttribute('opacity',1);
+    tip.style.display='block';tip.style.left=e.clientX+14+'px';tip.style.top=e.clientY-40+'px';tip.textContent=dstr(data[i].date)+' · '+fmt(unit,data[i].value)};
+  ov.onmouseleave=()=>{tip.style.display='none';svg.querySelector('.hv').setAttribute('opacity',0);svg.querySelector('.hd').setAttribute('opacity',0)};
+}
+function spark(vals,color){if(!vals||vals.length<2)return '';const w=84,h=24,mn=Math.min(...vals),mx=Math.max(...vals),rg=mx-mn||1;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;margin-left:auto"><polyline fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" points="${vals.map((v,i)=>(i/(vals.length-1)*w).toFixed(1)+','+(h-3-(v-mn)/rg*(h-6)).toFixed(1)).join(' ')}"/></svg>`}
+
+/* ---------- OVERVIEW ---------- */
+let OV=null,INS=null,CH='net_revenue';
+const CHARTS=[['net_revenue','Revenue','inr'],['net_profit','Profit','inr'],['orders','Orders','count']];
+function drawChart(){const [,lab,u]=CHARTS.find(c=>c[0]===CH),s=OV.series[CH]||[];
+  $('#cbig').textContent=lab+' · '+(s.length?fmt(u,s.at(-1).value):'–')+' yesterday';
+  $('#ctabs').innerHTML=CHARTS.map(c=>`<button data-c="${c[0]}" class="${c[0]===CH?'on':''}">${c[1]}</button>`).join('');
+  $$('#ctabs button').forEach(b=>b.onclick=()=>{CH=b.dataset.c;drawChart()});areaChart($('#chart'),s,u)}
+
+async function loadOverview(){
+  try{OV=await api('/api/overview')}catch(e){$('#p-ov').innerHTML='<div class="empty"><h2>No data yet</h2><p>Run <code>npm run seed</code> and reload.</p></div>';return}
+  const L=OV.lifetime,P=OV.pnl_30d,net=P.net_revenue||1,h=OV.health;
+  $('#brandline').textContent=`${OV.brand} · data through ${dlong(OV.as_of)}`;
+  const hc=h.score>=85?'var(--good)':h.score>=60?'var(--warn)':'var(--bad)';$('#hdot').style.background=hc;$('#htxt').textContent=h.issues?`${h.issues} thing${h.issues>1?'s':''} need attention`:'All healthy';
+  const g=L.growth_pct,keep=Math.round(P.net_profit/net*100);
+  $('#headline').innerHTML=`You've made <em>${inrC(L.net_revenue)}</em> in ${L.days} days.${g!=null?` The last 30 days grew <span class="${g>=0?'g':''}">${g>=0?'+':''}${g}%</span>`:''} and you keep <em>₹${keep}</em> of every ₹100 you sell.`;
+
+  // hero
+  const m=$('#mega');countUp(m,L.net_revenue,'inrC');
+  $('#megasub').textContent=`${inr(L.net_revenue)} after discounts & refunds · since ${dstr(L.since)}`;
+  $('#trio').innerHTML=[[g!=null?`<span class="${g>=0?'up':'down'}">${g>=0?'+':''}${g}%</span>`:'–','vs previous 30 days'],[inrC(L.net_profit),`profit · ${L.margin_pct}% margin`],[inrC(L.run_rate_annual),'yearly run-rate']].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('');
+  areaChart($('#cumchart'),OV.cumulative,'inr',{h:300,w:480});
+
+  $('#strip').innerHTML=[[L.orders,'Orders','count'],[L.customers,'Customers','count'],[L.aov,'Avg order value','inr'],[L.roas,'Return on ad spend','x'],[L.repeat_customer_pct,'Customers who reorder','pct']]
+    .map(([v,l,u])=>`<div><b>${fmt(u,v)}</b><span>${l}</span></div>`).join('');
+
+  // money split
+  const seg=[['Product cost',P.cogs,'#f2a154'],['Advertising',P.ad_spend,'#a78bfa'],['Shipping',P.shipping_cost,'#60a5fa'],['Payment fees',P.payment_fees,'#8b8478'],['Profit',P.net_profit,'#5fd08a']];
+  $('#p100').textContent='₹'+keep;
+  $('#stack').innerHTML=seg.map(s=>`<i style="flex:0 0 0;background:${s[2]}" data-w="${Math.max(s[1],0)/net*100}"></i>`).join('');
+  setTimeout(()=>$$('#stack i').forEach(i=>i.style.flex=`0 0 calc(${i.dataset.w}% - 3px)`),60);
+  $('#leg').innerHTML=seg.map(s=>`<div class="line"><span class="sw" style="background:${s[2]}"></span>${s[0]}<b>₹${(s[1]/net*100).toFixed(0)}</b></div>`).join('');
+
+  const pr=(await api('/api/products')).items.slice(0,5),mx=Math.max(...pr.map(p=>p.revenue),1);
+  $('#prods').innerHTML=pr.map(p=>`<div class="prod"><div class="r"><b style="font-weight:500">${esc(p.name)}</b><span>${inr(p.revenue)} · ${p.units} sold</span></div><div class="bar"><i data-w="${p.revenue/mx*100}"></i></div></div>`).join('');
+  setTimeout(()=>$$('#prods .bar i').forEach(i=>i.style.width=i.dataset.w+'%'),60);
+  drawChart();
+  renderAttention();renderMetrics();
+}
+async function renderAttention(){
+  INS=INS||await api('/api/insights');
+  const bad=(INS.items||[]).filter(i=>['critical','warning'].includes(i.severity)).slice(0,3);
+  $('#attn-sub').textContent=bad.length?`${bad.length} of ${(INS.items||[]).filter(i=>['critical','warning'].includes(i.severity)).length} shown`:'';
+  $('#attn').innerHTML=bad.length?bad.map(i=>`<div class="alert"><span class="d" style="background:${sevColor[i.severity]}"></span><div><b>${esc(i.title)}</b>${i.action?`<span class="fix">→ ${esc(i.action)}</span>`:`<p>${esc(i.body)}</p>`}</div></div>`).join('')
+    :'<div class="ok">✓ Nothing needs your attention. Everything is within its normal range.</div>';
+}
+
+/* ---------- METRICS ---------- */
+let MG=null;
+function renderMetrics(){
+  $('#mtdate').textContent='Yesterday vs your 7-day average · '+dlong(OV.as_of);
+  MG=MG||OV.groups[0];
+  $('#gtabs').innerHTML=OV.groups.filter(g=>OV.kpis.some(k=>k.group===g)).map(g=>`<button data-g="${g}" class="${g===MG?'on':''}">${g}</button>`).join('');
+  $$('#gtabs button').forEach(b=>b.onclick=()=>{MG=b.dataset.g;renderMetrics()});
+  $('#mtable').innerHTML='<tr><th>Metric</th><th class="r">Yesterday</th><th class="r">7-day avg</th><th class="r">Change</th><th class="r">Last 2 weeks</th></tr>'+
+    OV.kpis.filter(k=>k.group===MG).map(k=>{
+      let ch='<span class="pill neutral">–</span>';
+      if(k.delta_pct!=null&&isFinite(k.delta_pct)){const up=k.delta_pct>=0,cls=!k.good||Math.abs(k.delta_pct)<1?'neutral':((k.good==='up')===up?'good':'bad');ch=`<span class="pill ${cls}">${up?'▲':'▼'} ${Math.abs(k.delta_pct).toFixed(0)}%</span>`}
+      const col=k.status==='bad'?'var(--bad)':k.status==='good'?'var(--good)':'var(--accent)';
+      return `<tr><td>${esc(k.label)}</td><td class="r"><b style="font-weight:600">${fmt(k.unit,k.value)}</b></td><td class="r sub">${fmt(k.unit,k.baseline)}</td><td class="r">${ch}</td><td class="r">${spark(k.spark,col)}</td></tr>`}).join('');
+}
+
+/* ---------- CUSTOMERS & STOCK ---------- */
+async function loadCS(){
+  const {cohorts}=await api('/api/cohorts'),inv=await api('/api/inventory');
+  const good=cohorts.filter(c=>c.size>=10),best=good.length?good.reduce((a,b)=>b.ltv>a.ltv?b:a):null;
+  $('#csline').textContent=best?`Your ${best.cohort} customers are worth the most: ${inr(best.ltv)} each so far.`:'';
+  const heat=v=>v==null?'':`background:color-mix(in srgb,var(--accent) ${Math.min(85,v*1.25+8)}%,transparent);color:${v>55?'#1a0e04':'var(--ink)'};font-weight:600`;
+  $('#cohorts').innerHTML=`<tr><th>Month</th><th>New customers</th>${[0,1,2,3,4,5,6].map(i=>`<th style="text-align:center">${i===0?'Joined':'Month '+i}</th>`).join('')}<th class="r">Value each</th></tr>`+
+    cohorts.slice(-8).map(c=>`<tr><td><b>${c.cohort}</b></td><td>${c.size}</td>${[0,1,2,3,4,5,6].map(i=>{const v=c.retention[i];return `<td style="${heat(v)}">${v==null?'':v.toFixed(0)+'%'}</td>`}).join('')}<td class="r"><b>${inr(c.ltv)}</b></td></tr>`).join('');
+  $('#inv').innerHTML='<tr><th>Product</th><th class="r">In stock</th><th class="r">Reorder at</th><th class="r">Status</th></tr>'+inv.items.map(i=>`<tr><td>${esc(i.name)}</td><td class="r"><b style="font-weight:600">${i.stock}</b></td><td class="r sub">${i.reorder_level}</td><td class="r"><span class="pill ${i.status==='out'?'bad':i.status==='low'?'warn':'good'}">${i.status==='out'?'Out of stock':i.status==='low'?'Reorder now':'Healthy'}</span></td></tr>`).join('');
+}
+
+/* ---------- INSIGHTS ---------- */
+const SUG=["Why did today's margins shrink?","Which customer cohort has the highest lifetime value?","What is our repeat purchase rate?","What should I fix first?"];
+async function loadAI(){
+  INS=await api('/api/insights');const r=INS;
+  if(!r.date){$('#summary').textContent='No insights yet. Run the pipeline from Automation.';return}
+  $('#aidate').textContent=dlong(r.date);
+  $('#origin').textContent=r.origin==='ai'?'✦ Written by OpenAI':'Written by the built-in rules engine. Add OPENAI_API_KEY for AI-written analysis.';
+  $('#summary').textContent=r.summary;
+  $('#insights').innerHTML=r.items.map(i=>`<div class="issue"><span class="d" style="background:${sevColor[i.severity]}"></span><div><b>${esc(i.title)}</b><p>${esc(i.body)}</p>${i.action?`<span class="fix"><b>Do this:</b> ${esc(i.action)}</span>`:''}</div></div>`).join('')||'<div class="ok">✓ No anomalies detected.</div>';
+  $('#anoms').innerHTML='<tr><th>Metric</th><th class="r">Yesterday</th><th class="r">Typical</th><th class="r">Std devs</th></tr>'+r.anomalies.filter(a=>a.z).map(a=>`<tr><td>${esc(a.label)}</td><td class="r">${fmt(a.unit,a.value)}</td><td class="r sub">${fmt(a.unit,a.baseline)}</td><td class="r">${a.z>0?'+':''}${a.z}</td></tr>`).join('');
+  $('#sugg').innerHTML=SUG.map(s=>`<button>${s}</button>`).join('');$$('#sugg button').forEach(b=>b.onclick=()=>{$('#q').value=b.textContent;ask()});
+}
+async function ask(){const q=$('#q').value.trim();if(!q)return;const a=$('#answer');a.hidden=false;a.textContent='Thinking…';$('#askbtn').disabled=true;
+  try{const r=await api('/api/insights/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});a.textContent=r.answer}catch(e){a.textContent='Could not answer: '+e.message}$('#askbtn').disabled=false}
+
+/* ---------- AUTOMATION ---------- */
+async function loadWF(){
+  const r=await api('/api/workflows');
+  $('#wfmeta').textContent=`${Object.values(r.events_received).reduce((a,b)=>a+b,0).toLocaleString('en-IN')} events received · AI ${r.ai_enabled?'on':'off'} · Slack ${r.slack_enabled?'connected':'not connected'}`;
+  $('#wfs').innerHTML=r.workflows.map((w,i)=>`<div class="wf"><div class="n ${w.last_status==='ok'?'ok':''}">${w.last_status==='ok'?'✓':i+1}</div><div><b>${esc(w.name)}</b><p>${esc(w.desc)}</p><small>${w.last_run?'Last run '+new Date(w.last_run+'Z').toLocaleString('en-IN'):'Never run'}</small></div><button class="btn ghost" data-w="${w.id}">Run</button></div>`).join('');
+  $$('#wfs button').forEach(b=>b.onclick=()=>runWF(b.dataset.w));
+  $('#reports').innerHTML='<tr><th>Date</th><th>Report</th><th class="r">Slack</th></tr>'+(r.reports.map(x=>`<tr><td>${x.date}</td><td><a href="/reports/${x.file}" target="_blank">${x.file}</a></td><td class="r"><span class="pill ${x.slack.startsWith('sent')?'good':'neutral'}">${x.slack==='dry_run'?'not connected':x.slack.replace('_',' ')}</span></td></tr>`).join('')||'<tr><td colspan=3 class="sub">No reports yet</td></tr>');
+}
+async function runWF(w){const key=localStorage.getItem('fos_admin')||'';
+  try{await api('/api/workflows/run'+(w?'?workflow='+w:''),{method:'POST',headers:{'X-Admin-Key':key}})}
+  catch(e){if(e.status===401){const k=prompt('Admin key (ADMIN_API_KEY):');if(k){localStorage.setItem('fos_admin',k);return runWF(w)}}else alert('Failed: '+e.message);return}
+  $('#wfmeta').textContent='Running…';setTimeout(loadWF,2500);setTimeout(()=>{INS=null;loadWF();loadOverview()},9000)}
+
+/* ---------- wiring ---------- */
+$('#runall').onclick=()=>runWF();$('#askbtn').onclick=ask;$('#q').onkeydown=e=>{if(e.key==='Enter')ask()};
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.p));window.scrollTo(0,0);
+  ({ai:loadAI,cs:loadCS,wf:loadWF})[b.dataset.p]?.()});
+const th=localStorage.getItem('fos_theme');if(th)document.documentElement.dataset.theme=th;
+$('#theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('fos_theme',t);if(OV){drawChart();areaChart($('#cumchart'),OV.cumulative,'inr',{h:300,w:480})}};
+loadOverview();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "founderos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FounderOS: Business Automation Hub (Python/FastAPI). npm scripts are thin wrappers.",
+  "scripts": {
+    "dev": ".venv/bin/python -W ignore -m founderos serve --reload --port 8000",
+    "start": ".venv/bin/python -W ignore -m founderos serve --port 8000",
+    "seed": ".venv/bin/python -W ignore -m founderos seed",
+    "pipeline": ".venv/bin/python -W ignore -m founderos run-daily",
+    "test": ".venv/bin/python -W ignore -m pytest -q tests"
+  }
+}

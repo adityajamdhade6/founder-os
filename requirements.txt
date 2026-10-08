@@ -1,0 +1,11 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+python-dotenv>=1.0
+requests>=2.31
+reportlab>=4.0
+# Production Postgres driver (SQLite is used by default for local dev):
+# psycopg2-binary>=2.9
+# Dev / tests:
+pytest>=8.0
+httpx>=0.27
