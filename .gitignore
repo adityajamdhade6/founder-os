@@ -5,3 +5,5 @@ __pycache__/
 data/
 reports/
 .pytest_cache/
+.vercel
+.env*
