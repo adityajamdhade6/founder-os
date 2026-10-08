@@ -36,7 +36,6 @@ def configure(url: Optional[str] = None) -> Engine:
             kwargs["poolclass"] = StaticPool
         else:
             path = url.replace("sqlite:///", "", 1)
-            import os
             os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     elif os.environ.get("VERCEL"):
         # serverless: don't hold connections across invocations (use the provider's pooled URL)
