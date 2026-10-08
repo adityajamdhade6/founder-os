@@ -83,3 +83,21 @@ def test_workflow_failure_is_recorded_and_halts(seeded, monkeypatch):
     res = jobs.run_daily()
     assert [r["status"] for r in res] == ["ok", "error"]  # stops after the failing step
     assert "ZeroDivisionError" in res[1]["detail"]
+
+
+def test_cron_endpoint_requires_secret(seeded, monkeypatch):
+    assert seeded.get("/api/cron/run-daily").status_code == 401  # no secret configured -> closed
+    monkeypatch.setenv("CRON_SECRET", "s")
+    assert seeded.get("/api/cron/run-daily", headers={"Authorization": "Bearer wrong"}).status_code == 401
+    res = seeded.get("/api/cron/run-daily", headers={"Authorization": "Bearer s"}).json()["results"]
+    assert [r["status"] for r in res] == ["ok"] * 6
+
+
+def test_report_is_rebuilt_when_file_is_gone(seeded):
+    import os
+    from founderos.config import settings
+    name = seeded.get("/api/workflows").json()["reports"][0]["file"]
+    os.remove(settings().reports_dir / name)  # simulates an ephemeral serverless disk
+    r = seeded.get(f"/reports/{name}")
+    assert r.status_code == 200 and r.content.startswith(b"%PDF")
+    assert seeded.get("/reports/founderos-report-1999-01-01.pdf").status_code == 404

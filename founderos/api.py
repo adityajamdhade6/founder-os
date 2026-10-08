@@ -1,8 +1,11 @@
 """HTTP layer: webhook listeners, dashboard API and the static UI."""
 from __future__ import annotations
 
+import hmac
 import json
 import math
+import os
+import re
 from contextlib import asynccontextmanager
 from datetime import date, timedelta
 from pathlib import Path
@@ -14,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
-from . import __version__, anomalies, connectors, db, ingest, insights, jobs, kpis
+from . import __version__, anomalies, connectors, db, ingest, insights, jobs, kpis, reports
 from .config import settings
 from .models import CohortCell, Customer, InventoryItem, Insight, Metric, Order, Payment, RawEvent, Report, Shipment
 
@@ -279,15 +282,34 @@ def workflows():
 def run_workflows(background: BackgroundTasks, workflow: Optional[str] = None):
     if workflow and workflow not in jobs.BY_ID:
         raise HTTPException(404, "unknown workflow")
+    if os.environ.get("VERCEL"):  # serverless freezes the function once the response is sent
+        return {"ran": workflow or "all", "results": jobs.run_daily(None, [workflow] if workflow else None, 8, True)}
     background.add_task(jobs.run_daily, None, [workflow] if workflow else None, 8, True)
     return {"queued": workflow or "all"}
+
+
+@app.get("/api/cron/run-daily")
+def cron_run_daily(authorization: Optional[str] = Header(None)):
+    """Called by Vercel Cron, which sends `Authorization: Bearer $CRON_SECRET`."""
+    secret = settings().cron_secret
+    if not secret or not hmac.compare_digest(authorization or "", f"Bearer {secret}"):
+        raise HTTPException(401, "invalid cron secret")
+    return {"results": jobs.run_daily()}
 
 
 @app.get("/reports/{name}")
 def download_report(name: str):
     path = (settings().reports_dir / Path(name).name)
-    if not path.exists() or path.suffix != ".pdf":
+    if path.suffix != ".pdf":
         raise HTTPException(404)
+    if not path.exists():  # ephemeral disks (Vercel): rebuild the PDF from the database
+        m = re.fullmatch(r"founderos-report-(\d{4}-\d{2}-\d{2})\.pdf", path.name)
+        if not m:
+            raise HTTPException(404)
+        with db.session_scope() as s:
+            if s.execute(select(Insight.id).where(Insight.date == date.fromisoformat(m.group(1))).limit(1)).first() is None:
+                raise HTTPException(404)
+            reports.build_pdf(s, date.fromisoformat(m.group(1)))
     return FileResponse(path, media_type="application/pdf", filename=path.name)
 
 

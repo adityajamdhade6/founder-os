@@ -1,6 +1,7 @@
 """Database engine/session handling. SQLite by default, PostgreSQL in production."""
 from __future__ import annotations
 
+import os
 from contextlib import contextmanager
 from typing import Iterator, Optional
 
@@ -37,6 +38,12 @@ def configure(url: Optional[str] = None) -> Engine:
             path = url.replace("sqlite:///", "", 1)
             import os
             os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    elif os.environ.get("VERCEL"):
+        # serverless: don't hold connections across invocations (use the provider's pooled URL)
+        from sqlalchemy.pool import NullPool
+        kwargs["poolclass"] = NullPool
+    if not url.startswith("sqlite"):
+        kwargs["pool_pre_ping"] = True
     _engine = create_engine(url, future=True, **kwargs)
     if url.startswith("sqlite"):
         @event.listens_for(_engine, "connect")

@@ -32,6 +32,7 @@ class Settings:
     default_cogs_ratio: float
     payment_fee_pct: float
     reports_dir: Path
+    cron_secret: str
 
 
 def settings() -> Settings:
@@ -55,5 +56,6 @@ def settings() -> Settings:
         meta_ad_account_id=e("META_AD_ACCOUNT_ID", ""),
         default_cogs_ratio=float(e("DEFAULT_COGS_RATIO", "0.42")),
         payment_fee_pct=float(e("PAYMENT_FEE_PCT", "2.0")),
-        reports_dir=Path(e("REPORTS_DIR", str(ROOT / "reports"))),
+        reports_dir=Path(e("REPORTS_DIR", "/tmp/reports" if e("VERCEL") else str(ROOT / "reports"))),
+        cron_secret=e("CRON_SECRET", ""),
     )
