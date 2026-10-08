@@ -75,7 +75,7 @@ point `DATABASE_URL` at Postgres.
 1. Create a Postgres database (Neon via Vercel Storage, or Supabase) and copy its connection string.
 2. Load the schema and demo data once from your machine:
    `DATABASE_URL=<url> .venv/bin/python -m founderos seed` (or just let the app create empty tables on first request).
-3. Import the repo at vercel.com/new. `vercel.json` routes everything to `api/index.py` and schedules
+3. Import the repo at vercel.com/new. `index.py` exposes the app and `vercel.json` schedules
    `/api/cron/run-daily` at 02:30 UTC (08:00 IST).
 4. Set env vars in the project settings: `DATABASE_URL`, `CRON_SECRET`, `ADMIN_API_KEY`, the three webhook secrets,
    and optionally `OPENAI_API_KEY` / Slack / Meta. Leave `ALLOW_UNSIGNED_WEBHOOKS=0`.
