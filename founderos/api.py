@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import math
+from contextlib import asynccontextmanager
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -18,12 +19,15 @@ from .config import settings
 from .models import CohortCell, Customer, InventoryItem, Insight, Metric, Order, Payment, RawEvent, Report, Shipment
 
 STATIC = Path(__file__).parent / "static"
-app = FastAPI(title="FounderOS", version=__version__)
 
 
-@app.on_event("startup")
-def _startup() -> None:
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
     db.init_db()
+    yield
+
+
+app = FastAPI(title="FounderOS", version=__version__, lifespan=_lifespan)
 
 
 def require_admin(x_admin_key: Optional[str] = Header(None)) -> None:
@@ -86,7 +90,7 @@ class AdRow(BaseModel):
 def ingest_meta_ads(rows: List[AdRow]):
     """Manual/marketing-log ingestion (e.g. from a spreadsheet or Zapier)."""
     with db.session_scope() as s:
-        return {"upserted": connectors.upsert_ad_rows(s, [r.dict() for r in rows])}
+        return {"upserted": connectors.upsert_ad_rows(s, [(r.model_dump() if hasattr(r, "model_dump") else r.dict()) for r in rows])}
 
 
 @app.get("/health")
